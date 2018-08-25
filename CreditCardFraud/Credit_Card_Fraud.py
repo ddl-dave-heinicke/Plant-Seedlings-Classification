@@ -191,8 +191,7 @@ for param in params:
     scores = cross_validate(logreg, X, y, scoring=scoring, cv=5,
                             return_train_score=False)
     print('Tol: %f' % (param))
-    print('Logistic Regression CV Scores, Original Data:\
-           nprecision:\t%f \nreacll:\t\t%f\nf1:\t\t%f\nroc-auc:\t%f'
+    print('Logistic Regression CV Scores, Original Data:\nprecision:\t%f \nreacll:\t\t%f\nf1:\t\t%f\nroc-auc:\t%f'
           % (np.mean(scores.get('test_precision')),
              np.mean(scores.get('test_recall')),
              np.mean(scores.get('test_f1')),
