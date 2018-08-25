@@ -2,7 +2,7 @@
 
 These sample projects include Kaggle competitions, machine learning projects on puplicly avaialble datasets, and datasets I've explored just out of curiosity.
 
-### Plant Seedlings Competition
+### [Plant Seedlings Competition](https://github.com/dheinicke1/Sample-Work/blob/master/Plant%20Seedlings%20Classification/README.md)
 An image classification challenge that explores:
 
 - Image masking and pre-procesing
