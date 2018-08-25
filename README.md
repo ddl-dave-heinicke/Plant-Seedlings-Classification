@@ -11,6 +11,9 @@ An image classification challenge that explores:
 - Pre-trained image recognition models
 - Ensenble image feature models
 
-### Credit Card Fraud
+### [Credit Card Fraud](https://github.com/dheinicke1/CreditCardFraud/blob/master/Credit%20Card%20Fraud%20Detection.ipynb)
 
-A notebok that explores how to detect credit card fraud in a highly imbalanced data set.
+A notebok that explores how to detect credit card fraud from transaction data
+
+- Explore the effects of SMOTE resampling on a highly imbalanced data set
+- Compare the feature importance of Logisitc Regression, XGBoost and LightGBM models
