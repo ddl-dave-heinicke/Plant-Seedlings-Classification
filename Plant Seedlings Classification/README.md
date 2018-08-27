@@ -1,4 +1,4 @@
-### Plant Seedlings Classification Challenge
+# Plant Seedlings Classification Challenge
 
 [Kaggle Playground Plant Seedling Classification Challenge](https://www.kaggle.com/c/plant-seedlings-classification)
 
