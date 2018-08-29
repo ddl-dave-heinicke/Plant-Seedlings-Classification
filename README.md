@@ -17,3 +17,11 @@ A notebok that explores how to detect credit card fraud from transaction data
 
 - Explore the effects of SMOTE resampling on a highly imbalanced data set
 - Compare the feature importance of Logisitc Regression, XGBoost and LightGBM models
+
+### [Donors Choose](https://github.com/dheinicke1/DonorsChoose)
+
+A challenge to predict the likelikood of a grant application bein accepted.
+
+- Exploratory Data Analysis (EDA) of grant applications
+- Text vectorization and sentiment analysis of application essays
+- LightGBM modeling
