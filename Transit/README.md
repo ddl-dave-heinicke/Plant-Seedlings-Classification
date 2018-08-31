@@ -6,6 +6,8 @@ Project Under Construction!
 
 [FTA Data Here](https://www.transit.dot.gov/ntd/data-product/monthly-module-raw-data-release)
 
+The preprocessor can be used to preprocess and merge the two datasets as they are updated.
+
 ## Motivation
 
 1) Transit ridership in teh United States has decreased somewhat in recent years. Why? And Where?
