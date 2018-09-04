@@ -6,7 +6,9 @@ from collections import defaultdict, OrderedDict
 from pandas.plotting import scatter_matrix
 import seaborn as sns
 
-DATA_PATH = 'C:\\Users\\Dave\\Documents\\Python Scripts\\Transit\\'
+# DATA_PATH = 'C:\\Users\\Dave\\Documents\\Python Scripts\\Transit\\'
+
+DATA_PATH = 'C:\\Users\\dheinicke\\Google Drive\\Data Science Training\\Python Scripts\\Transit\\'
 
 gc.collect()
 
