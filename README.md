@@ -25,3 +25,7 @@ A challenge to predict the likelikood of a grant application bein accepted.
 - Exploratory Data Analysis (EDA) of grant applications
 - Text vectorization and sentiment analysis of application essays
 - LightGBM modeling
+
+### [Transit](https://github.com/dheinicke1/Sample-Work/tree/master/Transit)
+
+Project investigating US public transit data. In progress!
