@@ -56,7 +56,6 @@ for k in df_dict.keys():
 
 for col in df_dict['Master'].columns:
     # Fix dtypes
-    # if k == 'Master':
     df_dict['Master']['UZA'].astype('int', errors='raise')
     pd.to_numeric(df_dict['Master']['UZA_Area_SQ_Miles'])
     pd.to_numeric(df_dict['Master']['UZA_Population'])
