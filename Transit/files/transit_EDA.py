@@ -1,4 +1,5 @@
 import pandas as pd
+import numpy as np
 import gc
 import matplotlib.pyplot as plt
 from collections import defaultdict, OrderedDict
@@ -6,11 +7,53 @@ from collections import defaultdict, OrderedDict
 from pandas.plotting import scatter_matrix
 import seaborn as sns
 
-# DATA_PATH = 'C:\\Users\\Dave\\Documents\\Python Scripts\\Transit\\'
+DATA_PATH = 'C:\\Users\\Dave\\Documents\\Python Scripts\\Transit\\'
 
-DATA_PATH = 'C:\\Users\\dheinicke\\Google Drive\\Data Science Training\\Python Scripts\\Transit\\'
+# DATA_PATH = 'C:\\Users\\dheinicke\\Google Drive\\Data Science Training\\Python Scripts\\Transit\\'
 
-gc.collect()
+# Definitions
+
+
+def plot_total_ridership(df, freq='monthly'):
+
+    labels = []
+
+    if freq == 'monthly':
+        for i in range(2002, 2019):
+            for j in range(1, 13):
+                labels.append('%i, %i' % (j, i))
+    elif freq == 'quarterly':
+        for i in range(2002, 2019):
+            for j in range(1, 5):
+                labels.append('Q%i %i' % (j, i))
+    elif freq == 'yearly':
+        for i in range(2002, 2019):
+                labels.append('%i' % (i))
+    else:
+        print('Invalid Split')
+        return None
+
+    freq_dict = {'monthly': [1],
+                 'quarterly': 3,
+                 'yearly': 12}
+
+    df['Total'] = df.sum(axis=1)
+    df = df.reset_index().drop('index', axis=1)
+    df = df.groupby(df.index // freq_dict[freq] * freq_dict[freq]).sum()
+    df['labels'] = labels[0: df.shape[0]]
+    df.set_index('labels', drop=True, inplace=True)
+
+    fig, ax = plt.subplots(figsize=(14, 14))
+    ax = df.iloc[0:-1].Total.plot()
+    ax.set_title('%s Total Ridership in the United States' % freq.capitalize(),
+                 fontsize=16)
+    ax.set_ylabel('Total Trips per Year', fontsize=14)
+    plt.show()
+
+    return None
+
+
+# Read Data
 
 full_data = pd.read_csv(DATA_PATH + 'clean_data.csv', index_col=0)
 master = pd.read_csv(DATA_PATH + 'clean_data.csv',
@@ -163,13 +206,13 @@ plt.show()
 plt.scatter(temp.Service_Area_Pop_Density, temp.Passenger_Miles_PC)
 plt.title('Population Density vs Passenger Miles')
 plt.xlabel('Service Area Population Density')
-plt.ylabel('Passenger Miles')
+plt.ylabel('Passenger Miles per Year per Capita')
 plt.show()
 
 plt.scatter(temp.Service_Area_Pop_Density, temp.Average_Trip_Length_FY)
 plt.title('Population Density vs Passenger Miles')
 plt.xlabel('Service Area Population Density')
-plt.ylabel('Passenger Miles')
+plt.ylabel('Average Trip Length (Miles)')
 plt.show()
 
 scatter_matrix(temp, diagonal='kde', figsize=(14, 14))
@@ -179,9 +222,57 @@ sns.heatmap(temp, annot=True)
 
 gc.collect()
 
-# Objective 2: Create a US map of transit agenceis
+# Objective # 2 - Where is ridership increasing, and where is it decresing?
 
-from mpl_toolkits.basemap import Basemap
-from geopy.geocoders import Nominatim
+# 2.1 Check missing values
 
-print(python --version)
+# Dataframe of unlinked passenger trips (UPT)
+UPT_cols = ['5_digit_NTD_ID', 'Agency', 'Modes']
+
+for col in full_data.columns:
+    if col.endswith('UPT'):
+        UPT_cols.append(col)
+
+df_UPT = full_data[UPT_cols]
+
+# Per Read Me: Data quality and completeness have improved significantly over
+# time. The monthly data collection was introduced as a pilot program in 2002.
+# Over time, most transit properties developed new internal data collection and
+# processing methods to meet the new requirements. These developments, combined
+# with the implementation of more sophisticated validation checks by FTA, have
+# resulted in more complete and accurate data in more recent years.
+
+# What happens when we ignore missing data and just plot ridership by mode
+# as-is?
+
+df_UPT_by_type = df_UPT[UPT_cols[2:]].groupby('Modes').sum().T
+df_UPT_by_type = df_UPT_by_type.fillna(0)
+# df_UPT_by_type.head()
+plot_total_ridership(df_UPT_by_type, freq='quarterly')
+
+# Try interpolating missing values. Don't interpolate if more than 5 years
+# are missing to avoid over-estimating. Aligns with APTA estimates
+
+df_UPT_int = df_UPT[UPT_cols[3:]].dropna(thresh=60)
+df_UPT_int = df_UPT_int.interpolate(axis=1, limit=None, limit_direction='both')
+df_UPT_int['Modes'] = df_UPT['Modes']
+df_UPT_by_type = df_UPT_int.groupby('Modes').sum()
+
+plot_total_ridership(df_UPT_by_type, freq='yearly')
+
+# 2.2 Break down total annual ridership by type
+
+df_UPT_by_type['Total'] = df_UPT_by_type.sum(axis=1)
+df_UPT_by_type = df_UPT_by_type.sort_values(by='Total', ascending=False)
+
+fig, ax = plt.subplots(figsize=(14, 14))
+ax = df_UPT_by_type.iloc[0:5, 0:-1].T.plot()
+ax.set_title('Total Ridership in the United States by Type',
+             fontsize=16)
+ax.set_ylabel('Total Trips per Year', fontsize=14)
+plt.show()
+
+# Objective 3: Create a US map of transit agenceis
+
+# from mpl_toolkits.basemap import Basemap
+# from geopy.geocoders import Nominatim
