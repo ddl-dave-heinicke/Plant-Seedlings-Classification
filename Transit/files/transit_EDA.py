@@ -35,8 +35,6 @@ master = pd.read_csv(DATA_PATH + 'clean_data.csv',
                               ])
 print(master.head())
 
-a = master.loc[master['5_digit_NTD_ID']]
-
 # Create useful dictionaries
 
 # Agency name by Agency ID
