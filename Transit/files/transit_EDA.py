@@ -7,9 +7,9 @@ from collections import defaultdict, OrderedDict
 from pandas.plotting import scatter_matrix
 import seaborn as sns
 
-DATA_PATH = 'C:\\Users\\Dave\\Documents\\Python Scripts\\Transit\\'
+# DATA_PATH = 'C:\\Users\\Dave\\Documents\\Python Scripts\\Transit\\'
 
-# DATA_PATH = 'C:\\Users\\dheinicke\\Google Drive\\Data Science Training\\Python Scripts\\Transit\\'
+DATA_PATH = 'C:\\Users\\dheinicke\\Google Drive\\Data Science Training\\Python Scripts\\Transit\\'
 
 # Definitions
 
@@ -249,16 +249,16 @@ df_UPT_by_type = df_UPT[UPT_cols[2:]].groupby('Modes').sum().T
 df_UPT_by_type = df_UPT_by_type.fillna(0)
 # df_UPT_by_type.head()
 plot_total_ridership(df_UPT_by_type, freq='quarterly')
-
+df_UPT_by_type.head()
 # Try interpolating missing values. Don't interpolate if more than 5 years
 # are missing to avoid over-estimating. Aligns with APTA estimates
 
 df_UPT_int = df_UPT[UPT_cols[3:]].dropna(thresh=60)
 df_UPT_int = df_UPT_int.interpolate(axis=1, limit=None, limit_direction='both')
 df_UPT_int['Modes'] = df_UPT['Modes']
-df_UPT_by_type = df_UPT_int.groupby('Modes').sum()
+df_UPT_by_type = df_UPT_int.groupby('Modes').sum().T
 
-plot_total_ridership(df_UPT_by_type, freq='yearly')
+plot_total_ridership(df_UPT_by_type, freq='quarterly')
 
 # 2.2 Break down total annual ridership by type
 
@@ -266,11 +266,14 @@ df_UPT_by_type['Total'] = df_UPT_by_type.sum(axis=1)
 df_UPT_by_type = df_UPT_by_type.sort_values(by='Total', ascending=False)
 
 fig, ax = plt.subplots(figsize=(14, 14))
-ax = df_UPT_by_type.iloc[0:5, 0:-1].T.plot()
+ax = df_UPT_by_type.plot()
 ax.set_title('Total Ridership in the United States by Type',
              fontsize=16)
 ax.set_ylabel('Total Trips per Year', fontsize=14)
 plt.show()
+
+df_UPT_by_type.head(22)
+df_UPT_by_type.shape
 
 # Objective 3: Create a US map of transit agenceis
 
