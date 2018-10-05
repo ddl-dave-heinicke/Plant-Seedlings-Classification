@@ -257,7 +257,7 @@ df_UPT_int = df_UPT[UPT_cols[3:]].interpolate(axis=1,
                                               limit_direction='both')
 df_UPT_int['Modes'] = df_UPT['Modes']
 df_UPT_by_type = df_UPT_int.groupby('Modes').sum()
-plot_total_ridership(df_UPT_by_type.T, freq='yearly')
+plot_total_ridership(df_UPT_by_type.T, freq='Yearly')
 
 # 2.2 Break down total annual ridership by mode
 df_UPT_by_type['Total'] = df_UPT_by_type.sum(axis=1)
