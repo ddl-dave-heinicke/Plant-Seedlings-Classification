@@ -12,8 +12,8 @@ from sklearn.metrics import roc_auc_score, precision_recall_curve, roc_curve
 import seaborn as sns
 plt.style.use('seaborn')
 
-# DATA_PATH = 'C:\\Users\\Dave\\Documents\\Python Scripts\\Transit\\'
-DATA_PATH = 'C:\\Users\\dheinicke\\Google Drive\\Data Science Training\\Python Scripts\\Transit\\'
+DATA_PATH = 'C:\\Users\\Dave\\Documents\\Python Scripts\\Transit\\'
+# DATA_PATH = 'C:\\Users\\dheinicke\\Google Drive\\Data Science Training\\Python Scripts\\Transit\\'
 
 # ROC curve
 def plot_roc_curve(test_y, preds_proba):
@@ -278,6 +278,26 @@ y = master.target
 train_X, test_X, train_y, test_y = train_test_split(X, y, test_size=0.2,
                                                     random_state=2)
 
+
+# master.describe()
+# master.info()
+# mode_cols = [col for col in master.columns if 'mode_' in col]
+# mode_cols
+# master['mode__SR'].describe()
+#
+#
+#
+# rf = RandomForestClassifier()
+#
+# # Tune a lightgbm model
+#
+# # dir(GridSearchCV)
+#
+#
+#
+# preds.mean()
+# y.describe()
+
 # Logisitc Regression auc_roc = 0.58
 
 from sklearn.linear_model import LogisticRegression
@@ -398,10 +418,6 @@ print(roc_auc_score(test_y, preds_rf))
 
 plot_roc_curve(test_y, preds_proba_rf)
 
-<<<<<<< HEAD
-# LightGBM
- 
-=======
 # LightGBM # 0.631
 import lightgbm as lgb
 
@@ -411,8 +427,6 @@ lgb_clf = lgb.LGBMClassifier(n_estimators=450,
                              eval_metric='roc_auc',
                              n_jobs=-1
                              )
-
-# lgb_clf.get_params().keys()
 
 param_grid = {'boosting_type': ['gbdt'], # gbdt
               'num_leaves': [14], # 14
@@ -432,7 +446,6 @@ lgb_cv = GridSearchCV(lgb_clf,
                       verbose=1)
 
 lgb_cv.fit(train_X, train_y)
->>>>>>> 2f77a2081985b913027a702b2b3e74e3bcee71ae
 
 lgb_cv.best_score_
 lgb_cv.best_params_
