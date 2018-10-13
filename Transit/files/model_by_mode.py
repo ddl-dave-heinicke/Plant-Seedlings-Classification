@@ -3,7 +3,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 from collections import defaultdict
 from scipy import stats
-from sklearn.preprocessing import StandardScaler
+from sklearn.preprocessing import StandardScaler, LabelEncoder
 from sklearn.model_selection import train_test_split, GridSearchCV
 from sklearn.metrics import confusion_matrix, classification_report
 from sklearn.metrics import roc_auc_score, precision_recall_curve, roc_curve
@@ -73,7 +73,7 @@ df_UPT = df_UPT[UPT_cols[3:]].interpolate(axis=1,
 df_UPT['5_digit_NTD_ID'] = full_data['5_digit_NTD_ID']
 
 # Combine Ridership by Agency
-df_UPT = df_UPT.groupby('5_digit_NTD_ID').sum()
+# df_UPT = df_UPT.groupby('5_digit_NTD_ID').sum()
 
 # ### Create target ####
 # Compare average total ridership between 2007 - 2014 (about the average peak)
@@ -115,62 +115,59 @@ df_UPT['target'] = df_UPT['ridership_ratio'].\
 
 df_UPT['target'].describe()
 
-df_UPT.head()
-
 # ### Create Master Features ####
 
 master = master.fillna(0)
 
-# Encode transit modes
-master = pd.concat([master.drop('Modes', axis=1),
-                    pd.get_dummies(master.Modes, prefix='mode_')], axis=1)
+# Label encode transit modes
+le = LabelEncoder()
 
+master['Modes'] = le.fit_transform(master.Modes)
+
+# One hot encode state
 master = pd.concat([master.drop('HQ_State', axis=1),
                     pd.get_dummies(master.HQ_State)], axis=1)
 
-master.columns
+# master.columns
 
-grouped = master.groupby('5_digit_NTD_ID')
+# grouped = master.groupby('5_digit_NTD_ID')
 # grouped.describe
-sum_cols = ['Passenger_Miles_FY',
-            'Unlinked_Passenger_Trips_FY',
-            'Fares_FY',
-            'Operating_Expenses_FY']
-
-agency_cols = ['UZA_Area_SQ_Miles',
-               'UZA_Population',
-               'Service_Area_SQ_Miles',
-               'Service_Area_Population']
-
-encoded_cols = ['mode__AG', 'mode__AR', 'mode__CB', 'mode__CC', 'mode__CR',
-                'mode__DR', 'mode__DT', 'mode__FB', 'mode__HR', 'mode__IP',
-                'mode__LR', 'mode__MB', 'mode__MG', 'mode__MO', 'mode__OR',
-                'mode__PB', 'mode__RB', 'mode__SR', 'mode__TB', 'mode__TR',
-                'mode__VP', 'mode__YR', 'AK', 'AL', 'AR', 'AZ', 'CA', 'CO',
-                'CT', 'DC', 'DE', 'FL', 'GA', 'HI', 'IA', 'ID', 'IL', 'IN',
-                'KS', 'KY', 'LA', 'MA', 'MD', 'ME', 'MI', 'MN', 'MO', 'MS',
-                'MT', 'NC', 'ND', 'NE', 'NH', 'NJ', 'NM', 'NV', 'NY', 'OH',
-                'OK', 'OR', 'PA', 'PR', 'RI', 'SC', 'SD', 'TN', 'TX', 'UT',
-                'VA', 'VI', 'VT', 'WA', 'WI', 'WV', 'WY']
-
-funcs = defaultdict()
-
-for col in master.columns:
-    if col in sum_cols:
-        funcs[col] = np.sum
-    elif col in agency_cols:
-        funcs[col] = stats.mode
-    elif col in encoded_cols:
-        funcs[col] = np.max
-
-master = grouped.agg(funcs).fillna(0)
-
-for col in agency_cols:
-    master[col] = master[col].apply(lambda x: x.mode[0])
-
-temp = pd.DataFrame(df_UPT.target)
-
-master = master.join(temp, how='left')
+# sum_cols = ['Passenger_Miles_FY',
+#             'Unlinked_Passenger_Trips_FY',
+#             'Fares_FY',
+#             'Operating_Expenses_FY']
+#
+# agency_cols = ['UZA_Area_SQ_Miles',
+#                'UZA_Population',
+#                'Service_Area_SQ_Miles',
+#                'Service_Area_Population']
+#
+# encoded_cols = ['mode__AG', 'mode__AR', 'mode__CB', 'mode__CC', 'mode__CR',
+#                 'mode__DR', 'mode__DT', 'mode__FB', 'mode__HR', 'mode__IP',
+#                 'mode__LR', 'mode__MB', 'mode__MG', 'mode__MO', 'mode__OR',
+#                 'mode__PB', 'mode__RB', 'mode__SR', 'mode__TB', 'mode__TR',
+#                 'mode__VP', 'mode__YR', 'AK', 'AL', 'AR', 'AZ', 'CA', 'CO',
+#                 'CT', 'DC', 'DE', 'FL', 'GA', 'HI', 'IA', 'ID', 'IL', 'IN',
+#                 'KS', 'KY', 'LA', 'MA', 'MD', 'ME', 'MI', 'MN', 'MO', 'MS',
+#                 'MT', 'NC', 'ND', 'NE', 'NH', 'NJ', 'NM', 'NV', 'NY', 'OH',
+#                 'OK', 'OR', 'PA', 'PR', 'RI', 'SC', 'SD', 'TN', 'TX', 'UT',
+#                 'VA', 'VI', 'VT', 'WA', 'WI', 'WV', 'WY']
+#
+# funcs = defaultdict()
+#
+# for col in master.columns:
+#     if col in sum_cols:
+#         funcs[col] = np.sum
+#     elif col in agency_cols:
+#         funcs[col] = stats.mode
+#     elif col in encoded_cols:
+#         funcs[col] = np.max
+#
+# master = grouped.agg(funcs).fillna(0)
+#
+# for col in agency_cols:
+#     master[col] = master[col].apply(lambda x: x.mode[0])
+#
 
 # Feature Extraction
 def divide_with_zeros(a, b):
@@ -272,23 +269,29 @@ scaler = StandardScaler()
 for column in columns_to_scale:
     master[column] = scaler.fit_transform(master[column].values.reshape(-1,1))
 
+# Merge target from df_UPT
+
+temp = pd.DataFrame(df_UPT['target'])
+master = master.join(temp, how='left')
+del temp
+
 X = master.drop('target', axis=1)
 y = master.target
 
 train_X, test_X, train_y, test_y = train_test_split(X, y, test_size=0.2,
-                                                    random_state=1)
+                                                    random_state=3)
 
-# Logisitc Regression auc_roc = 0.58
+# Logisitc Regression auc_roc = 0.54
 
 from sklearn.linear_model import LogisticRegression
 
-lr = LogisticRegression(max_iter=10000,
-                        verbose=1,
-                        n_jobs=-1)
+lr = LogisticRegression(max_iter=1000,
+                        verbose=1
+                        )
 
 params_lr = {'penalty': ['l1'],
-             'tol': [0.0001],
-             'C':[0.5, 1, 1.5],
+             'tol': [0.1],
+             'C':[7],
              'solver':['liblinear']}
 
 lr_cv = GridSearchCV(lr,
@@ -312,7 +315,7 @@ print(roc_auc_score(test_y, preds))
 
 plot_roc_curve(test_y, preds_proba)
 
-# Naive Bayes - roc_auc 0.47
+# Naive Bayes - roc_auc 0.50
 
 from sklearn.naive_bayes import GaussianNB
 
@@ -330,7 +333,7 @@ print(roc_auc_score(test_y, preds_gnb))
 
 plot_roc_curve(test_y, preds_proba_gnb)
 
-# KNN
+# KNN #0.52
 
 from sklearn.neighbors import KNeighborsClassifier
 
@@ -361,20 +364,21 @@ print(roc_auc_score(test_y, preds_knn))
 
 plot_roc_curve(test_y, preds_proba_knn)
 
-# Random Forrest
+# Random Forest #0.571
+
 from sklearn.ensemble import RandomForestClassifier
 
-rf = RandomForestClassifier(n_estimators=1000,
+rf = RandomForestClassifier(n_estimators=650,
                             oob_score=True,
                             n_jobs=-1,
                             random_state=42,
                             )
 
-params_rf = {'criterion': ['gini', 'entropy'],
-             'max_features': [0.1, 0.2, 0.3, 0.4, 0.5],
-             'max_depth': [6, 7, 8],
-             'min_samples_split': [2, 3],
-             'min_samples_leaf': [2, 3]
+params_rf = {'criterion': ['entropy'], # entropy
+             'max_features': [0.4], # 0.4
+             'max_depth': [31], # 10
+             'min_samples_split': [2], # 2
+             'min_samples_leaf': [3] # 3
              }
 
 rf_cv = GridSearchCV(rf,
@@ -398,8 +402,36 @@ print(roc_auc_score(test_y, preds_rf))
 
 plot_roc_curve(test_y, preds_proba_rf)
 
-# LightGBM
- 
+# LightGBM # 0.575
+import lightgbm as lgb
+
+lgb_clf = lgb.LGBMClassifier(n_estimators=600,
+                             objective='binary',
+                             random_state=42,
+                             eval_metric='roc_auc',
+                             n_jobs=-1
+                             )
+
+param_grid = {'boosting_type': ['gbdt'],
+              'num_leaves': [23], #23
+              'max_depth': [6], # 6
+              'learning_rate': [0.01],
+              'min_split_gain': [0],
+              'min_child_samples': [2],
+              'colsample_by_tree': [1],
+              'reg_alpha': [0],
+              'reg_lamda': [10],
+              # 'bagging_freq': [1],
+              # 'bagging_fraction': [0.2]
+              }
+
+lgb_cv = GridSearchCV(lgb_clf,
+                      param_grid=param_grid,
+                      cv=5,
+                      scoring='roc_auc',
+                      verbose=1)
+
+lgb_cv.fit(train_X, train_y)
 
 lgb_cv.best_score_
 lgb_cv.best_params_
