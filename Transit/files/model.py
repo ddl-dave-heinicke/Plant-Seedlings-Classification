@@ -12,8 +12,8 @@ from sklearn.metrics import roc_auc_score, precision_recall_curve, roc_curve
 import seaborn as sns
 plt.style.use('seaborn')
 
-DATA_PATH = 'C:\\Users\\Dave\\Documents\\Python Scripts\\Transit\\'
-# DATA_PATH = 'C:\\Users\\dheinicke\\Google Drive\\Data Science Training\\Python Scripts\\Transit\\'
+# DATA_PATH = 'C:\\Users\\Dave\\Documents\\Python Scripts\\Transit\\'
+DATA_PATH = 'C:\\Users\\dheinicke\\Google Drive\\Data Science Training\\Python Scripts\\Transit\\'
 
 # ROC curve
 def plot_roc_curve(test_y, preds_proba):
@@ -276,7 +276,7 @@ X = master.drop('target', axis=1)
 y = master.target
 
 train_X, test_X, train_y, test_y = train_test_split(X, y, test_size=0.2,
-                                                    random_state=1)
+                                                    random_state=2)
 
 
 # master.describe()
@@ -381,20 +381,20 @@ print(roc_auc_score(test_y, preds_knn))
 
 plot_roc_curve(test_y, preds_proba_knn)
 
-# Random Forrest
+# Random Forrest # 0.574
 from sklearn.ensemble import RandomForestClassifier
 
-rf = RandomForestClassifier(n_estimators=1000,
+rf = RandomForestClassifier(n_estimators=650,
                             oob_score=True,
                             n_jobs=-1,
                             random_state=42,
                             )
 
-params_rf = {'criterion': ['gini', 'entropy'],
-             'max_features': [0.1, 0.2, 0.3, 0.4, 0.5],
-             'max_depth': [6, 7, 8],
-             'min_samples_split': [2, 3],
-             'min_samples_leaf': [2, 3]
+params_rf = {'criterion': ['entropy'],
+             'max_features': [0.45], # 0.45
+             'max_depth': [31],
+             'min_samples_split': [2],
+             'min_samples_leaf': [2]
              }
 
 rf_cv = GridSearchCV(rf,
@@ -418,10 +418,10 @@ print(roc_auc_score(test_y, preds_rf))
 
 plot_roc_curve(test_y, preds_proba_rf)
 
-# LightGBM
+# LightGBM # 0.631
 import lightgbm as lgb
 
-lgb_clf = lgb.LGBMClassifier(n_estimators=1000,
+lgb_clf = lgb.LGBMClassifier(n_estimators=450,
                              objective='binary',
                              random_state=42,
                              eval_metric='roc_auc',
@@ -430,15 +430,15 @@ lgb_clf = lgb.LGBMClassifier(n_estimators=1000,
 
 # lgb_clf.get_params().keys()
 
-param_grid = {'boosting_type': ['gbdt', 'dart', 'rf'],
-              'num_leaves': [5, 10, 20, 30, 50, 70, 100],
-              'max_depth': [6, 7, 8, -1],
+param_grid = {'boosting_type': ['gbdt'], # gbdt
+              'num_leaves': [14], # 14
+              'max_depth': [5], # 5
               'learning_rate': [0.01],
               'min_split_gain': [0],
-              'min_child_samples': [2, 3],
+              'min_child_samples': [3], # 3
               'colsample_bytree': [1],
-              'reg_alpha': [0.1, 0, 1],
-              'reg_lambda': [0.1, 0, 1],
+              'reg_alpha': [0], # 0
+              'reg_lambda': [0], # 0
               }
 
 lgb_cv = GridSearchCV(lgb_clf,
@@ -462,3 +462,4 @@ print(classification_report(test_y, preds))
 print(roc_auc_score(test_y, preds))
 
 plot_roc_curve(test_y, preds_proba)
+
