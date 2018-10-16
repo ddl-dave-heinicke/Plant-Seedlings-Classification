@@ -12,8 +12,8 @@ from sklearn.metrics import roc_auc_score, precision_recall_curve, roc_curve
 import seaborn as sns
 plt.style.use('seaborn')
 
-DATA_PATH = 'C:\\Users\\Dave\\Documents\\Python Scripts\\Transit\\'
-# DATA_PATH = 'C:\\Users\\dheinicke\\Google Drive\\Data Science Training\\Python Scripts\\Transit\\'
+# DATA_PATH = 'C:\\Users\\Dave\\Documents\\Python Scripts\\Transit\\'
+DATA_PATH = 'C:\\Users\\dheinicke\\Google Drive\\Data Science Training\\Python Scripts\\Transit\\'
 
 # ROC curve
 def plot_roc_curve(test_y, preds_proba):
@@ -272,6 +272,10 @@ scaler = StandardScaler()
 for column in columns_to_scale:
     master[column] = scaler.fit_transform(master[column].values.reshape(-1,1))
 
+# Save 'master' DataFrame
+
+master.to_csv(DATA_PATH + 'featurized_data_by_agency.csv')
+
 X = master.drop('target', axis=1)
 y = master.target
 
@@ -429,7 +433,7 @@ lgb_clf = lgb.LGBMClassifier(n_estimators=450,
                              )
 
 param_grid = {'boosting_type': ['gbdt'], # gbdt
-              'num_leaves': [14], # 14
+              'num_leaves': [14, 25, 31], # 14
               'max_depth': [5], # 5
               'learning_rate': [0.01],
               'min_split_gain': [0],
@@ -445,7 +449,7 @@ lgb_cv = GridSearchCV(lgb_clf,
                       scoring='roc_auc',
                       verbose=1)
 
-lgb_cv.fit(train_X, train_y)
+lgb_cv.fit(X, y)
 
 lgb_cv.best_score_
 lgb_cv.best_params_
@@ -460,4 +464,3 @@ print(classification_report(test_y, preds))
 print(roc_auc_score(test_y, preds))
 
 plot_roc_curve(test_y, preds_proba)
-
