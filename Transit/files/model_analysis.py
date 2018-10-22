@@ -12,6 +12,9 @@ from eli5.sklearn import PermutationImportance
 from sklearn.model_selection import train_test_split
 from sklearn.metrics import roc_auc_score
 
+# SHAP
+import shap
+shap.initjs()
 
 # DATA_PATH = 'C:\\Users\\Dave\\Documents\\Python Scripts\\Transit\\'
 DATA_PATH = 'C:\\Users\\dheinicke\\Google Drive\\Data Science Training\\Python Scripts\\Transit\\'
@@ -23,9 +26,9 @@ y = data['target']
 
 train_X, test_X, train_y, test_y = train_test_split(X, y,
                                                     test_size=0.25,
-                                                    random_state=2)
+                                                    random_state=4)
 
- feature_names = X.columns.tolist()
+feature_names = X.columns.tolist()
 
 # LightGBM model
 
@@ -52,7 +55,7 @@ perm = PermutationImportance(model, random_state=42).fit(test_X, test_y)
 
 eli5.show_weights(perm, feature_names=feature_names)
 
-# Partial Dependence PLots
+# Partial Dependence PLots - need to fix outliers!
 
 def pdp_plotter(feature, model):
     pdp_feat = pdp.pdp_isolate(model=model,
@@ -63,4 +66,11 @@ def pdp_plotter(feature, model):
     plt.show()
 
 
-pdp_plotter('cost_per_mile', model)
+pdp_plotter('service_to_uza_area', model)
+
+# SHAP
+
+explainer = shap.TreeExplainer(model)
+shap_values = explainer.shap_values(test_X)
+
+shap.summary_plot(shap_values, test_X)

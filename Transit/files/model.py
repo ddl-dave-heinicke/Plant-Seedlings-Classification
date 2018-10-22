@@ -274,10 +274,39 @@ for column in columns_to_scale:
 
 # Save 'master' DataFrame
 
-master.to_csv(DATA_PATH + 'featurized_data_by_agency.csv')
+# master.to_csv(DATA_PATH + 'featurized_data_by_agency.csv')
 
 X = master.drop('target', axis=1)
 y = master.target
+
+# EDA - check for clustering with PCA / TSNE?
+
+from sklearn.decomposition import PCA
+from sklearn.manifold import TSNE
+
+perplexity = 100
+step = 5000
+
+pca = PCA(n_components=2, random_state=2)
+tsne = TSNE(n_components=2,
+            learning_rate=200,
+            random_state=1,
+            perplexity=perplexity,
+            n_iter=step)
+
+X_tsne = tsne.fit_transform(X)
+tsne_df = pd.DataFrame(np.column_stack((X_tsne, y)),
+                      columns = ['x', 'y', 'label'])
+
+increasing = tsne_df.loc[tsne_df.label == 1][['x', 'y']]
+decreasing = tsne_df.loc[tsne_df.label == 0][['x', 'y']]
+
+fig, ax = plt.subplots()
+ax = plt.scatter(increasing.x, increasing.y, color='g')
+ax = plt.scatter(decreasing.x, decreasing.y, color='r')
+plt.title('TSNE plot, perplexity = {}, step = {}'.format(perplexity, step))
+plt.show()
+
 
 train_X, test_X, train_y, test_y = train_test_split(X, y, test_size=0.2,
                                                     random_state=2)
