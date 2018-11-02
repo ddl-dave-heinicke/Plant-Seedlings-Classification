@@ -12,8 +12,8 @@ from sklearn.metrics import roc_auc_score, precision_recall_curve, roc_curve
 import seaborn as sns
 plt.style.use('seaborn')
 
-# DATA_PATH = 'C:\\Users\\Dave\\Documents\\Python Scripts\\Transit\\'
-DATA_PATH = 'C:\\Users\\dheinicke\\Google Drive\\Data Science Training\\Python Scripts\\Transit\\'
+DATA_PATH = 'C:\\Users\\Dave\\Documents\\Python Scripts\\Transit\\'
+# DATA_PATH = 'C:\\Users\\dheinicke\\Google Drive\\Data Science Training\\Python Scripts\\Transit\\'
 
 # ROC curve
 def plot_roc_curve(test_y, preds_proba):
@@ -274,7 +274,7 @@ for column in columns_to_scale:
 
 # Save 'master' DataFrame
 
-# master.to_csv(DATA_PATH + 'featurized_data_by_agency.csv')
+master.to_csv(DATA_PATH + 'featurized_data_by_agency.csv')
 
 X = master.drop('target', axis=1)
 y = master.target

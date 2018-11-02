@@ -16,8 +16,8 @@ from sklearn.metrics import roc_auc_score
 import shap
 shap.initjs()
 
-# DATA_PATH = 'C:\\Users\\Dave\\Documents\\Python Scripts\\Transit\\'
-DATA_PATH = 'C:\\Users\\dheinicke\\Google Drive\\Data Science Training\\Python Scripts\\Transit\\'
+DATA_PATH = 'C:\\Users\\Dave\\Documents\\Python Scripts\\Transit\\'
+# DATA_PATH = 'C:\\Users\\dheinicke\\Google Drive\\Data Science Training\\Python Scripts\\Transit\\'
 
 data = pd.read_csv(DATA_PATH + 'featurized_data_by_agency.csv')
 
@@ -26,7 +26,7 @@ y = data['target']
 
 train_X, test_X, train_y, test_y = train_test_split(X, y,
                                                     test_size=0.25,
-                                                    random_state=4)
+                                                    random_state=3)
 
 feature_names = X.columns.tolist()
 
