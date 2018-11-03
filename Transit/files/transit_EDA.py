@@ -2,9 +2,10 @@ import pandas as pd
 import numpy as np
 from scipy import stats
 import gc
-import matplotlib.pyplot as plt
 from collections import defaultdict, OrderedDict
 
+# Plotting
+import matplotlib.pyplot as plt
 from pandas.plotting import scatter_matrix
 import seaborn as sns
 plt.style.use('seaborn')
@@ -120,6 +121,7 @@ for UZA, Agencies in agency_ID_by_UZA.items():
 EDA_1 = master[['5_digit_NTD_ID',
                 'Agency',
                 'UZA_Name',
+                'UZA_Population',
                 'Service_Area_SQ_Miles',
                 'Service_Area_Population',
                 'Passenger_Miles_FY',
@@ -130,15 +132,18 @@ print(EDA_1.shape)
 
 EDA_1.dropna(axis=0, how='any', inplace=True)
 
-print(EDA_1.shape)
-
 print('There are %i Transit Agencies' % (len(set(EDA_1['5_digit_NTD_ID']))))
+
+print('The agencies operate in %i states & terriories and %i municipalities.'
+      % (len(np.unique(master.HQ_State)), len(np.unique(master.HQ_City))))
+
 
 # Combine Transit Modes by Transit Agency
 
 temp = EDA_1[['5_digit_NTD_ID',
               'Agency',
               'UZA_Name',
+              'UZA_Population',
               'Service_Area_SQ_Miles',
               'Service_Area_Population']]\
             .groupby('5_digit_NTD_ID').first().reset_index(drop=True)
@@ -173,49 +178,89 @@ EDA_1_by_agency['Passenger_Trips_PC'] =\
                 EDA_1_by_agency.Unlinked_Passenger_Trips_FY / \
                 EDA_1_by_agency.Service_Area_Population
 
-# Stockton, Ca??? Huh? Looks like a data entry error
-EDA_1_by_agency.drop(EDA_1_by_agency.Service_Area_Pop_Density.
-                     idxmax(), axis=0, inplace=True)
+# Service area population in millions
+EDA_1_by_agency['Service_Area_Pop_mill'] =\
+                EDA_1_by_agency.Service_Area_Population / 1000000
 
-# Investigate outliers
-EDA_1_by_agency.iloc[EDA_1_by_agency.Passenger_Trips_PC.idxmax()]
+EDA_1_by_agency['UZA_Pop_mill'] =\
+                EDA_1_by_agency.UZA_Population / 1000000
 
-# Drop Population Outliers - only service areas between 50k and 1 million
+
+# Check for obvious errors in the data
+EDA_1_by_agency[['UZA_Name',
+                 'Agency',
+                 'Service_Area_Pop_Density',
+                 'UZA_Pop_mill',
+                 'Service_Area_Pop_mill',
+                 'Service_Area_SQ_Miles']].\
+                 loc[EDA_1_by_agency.UZA_Pop_mill < 100].\
+                 sort_values(by='Service_Area_Pop_Density',
+                             ascending=False)[:30]
+
+# List of major errors noted and cleaned in the preprocessor:
+# 1) Altamont Corridor Express: Service Area should include San Jose<->Stockton
+# 2) Mecklenburg County DSS's service area is Charlotte's 688 sq mi, not 31
+# 3) San Juan / Fajardo Ferry is unusual, but better described as serving 876.2
+#    sq. miles (San Juan-Fajardo urban area)
+# 4) The Detrit People Mover shows a very high population density, but
+#    it really only serves central Detroit, so for purposes of the model its
+#    probably accurate
+# 5) Polk County Transit Services serves all of Polk Co (1798 sq mi)
+# 6) University of Georgia Transit System serves all of Athens, 118 sq miles
+# 7) Augusta Richmond County Transit Department serves 302 sq miles
+# 9) Ventura Intercity Service Transit Authority serves ~800 sq.mi
+
+
+# Optional - Drop Population Outliers
 min_pop = 0000
-max_pop = 10000000
-miles_cutoff = 10000000
+max_pop = 7000000
+miles_cutoff = 0
 
 temp =\
-     EDA_1_by_agency.loc[(EDA_1_by_agency.Service_Area_Population < max_pop)
-                         & (EDA_1_by_agency.Service_Area_Population > min_pop)
+     EDA_1_by_agency.loc[(EDA_1_by_agency.UZA_Population < max_pop)
+                         & (EDA_1_by_agency.UZA_Population > min_pop)
                          & (EDA_1_by_agency.Passenger_Miles_FY > miles_cutoff)]
 
-temp.sort_values(by='Service_Area_Pop_Density', ascending=False).tail(10)
+temp.sort_values(by='Passenger_Trips_PC', ascending=False).head(10)
 
+# Distribution of Service Area Populations
 plt.hist(temp.Service_Area_Population, bins=50)
 plt.title('Servica Area Population Distribution')
 plt.xlabel('Service Area Population')
 plt.show()
 
+# Correlation bewteen population density and passenger trips per capita?
 plt.scatter(temp.Service_Area_Pop_Density, temp.Passenger_Trips_PC)
 plt.title('Population Density vs Passenger Trips')
 plt.xlabel('Service Area Population Density')
 plt.ylabel('Passenger Trips per Year per Capita')
+plt.xlim(0, 10000)
 plt.show()
 
+# Correlation bewteen population density and passenger miles per capita?
 plt.scatter(temp.Service_Area_Pop_Density, temp.Passenger_Miles_PC)
 plt.title('Population Density vs Passenger Miles')
 plt.xlabel('Service Area Population Density')
 plt.ylabel('Passenger Miles per Year per Capita')
+plt.xlim(0, 10000)
+plt.ylim(0, 500)
 plt.show()
 
+# Correlation bewteen population density and trip length?
 plt.scatter(temp.Service_Area_Pop_Density, temp.Average_Trip_Length_FY)
 plt.title('Population Density vs Passenger Miles')
 plt.xlabel('Service Area Population Density')
 plt.ylabel('Average Trip Length (Miles)')
+plt.xlim(0, 10000)
 plt.show()
 
-scatter_matrix(temp, diagonal='kde', figsize=(14, 14))
+# Correlation between anything?
+scatter_matrix(temp[['Service_Area_Population',
+                     'Service_Area_Pop_Density',
+                     'Passenger_Miles_FY',
+                     'Unlinked_Passenger_Trips_FY',
+                     'Average_Trip_Length_FY']],
+               diagonal='kde', figsize=(14, 14))
 plt.show()
 
 sns.heatmap(temp, annot=True)
@@ -447,12 +492,3 @@ plt.ylabel('Net Revenue per Trip ($)')
 plt.tick_params(bottom=False, labelbottom=False)
 plt.title('Distribution of net Revenue per Trip by Agency')
 plt.show()
-
-
-
-# 2.5 Investigate the target variable - increase or decrease in ridership
-
-# Objective 3: Create a US map of transit agenceis
-
-# from mpl_toolkits.basemap import Basemap
-# from geopy.geocoders import Nominatim

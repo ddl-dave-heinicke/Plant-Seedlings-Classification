@@ -91,6 +91,50 @@ for k in list(df_dict.keys())[1:]:
     cols_to_merge = df_dict[k].columns[9:]
     full_df = full_df.join(df_dict[k][cols_to_merge])
 
+# Correct data errors discovered during EDA
+# List of major errors noted:
+# 1) Altamont Corridor Express: Service Area should include San Jose<->Stockton
+# 2) Mecklenburg County DSS's service area is Charlotte's 688 sq mi, not 31
+# 3) San Juan / Fajardo Ferry is unusual, but better described as serving 867
+#    sq. miles (San Juan-Fajardo UZA area)
+# 4) The Detrit People Mover shows a very high population density, but
+#    it really only serves central Detroit, so for purposes of the model its
+#    probably accurate
+# 5) Polk County Transit Services serves all of Polk Co (1798 sq mi)
+# 6) University of Georgia Transit System serves all of Athens, 118 sq miles
+# 7) Augusta Richmond County Transit Department serves 302 sq miles
+# 9) Ventura Intercity Service Transit Authority serves ~800 sq.mi
+
+# ACE
+full_df.loc[full_df['5_digit_NTD_ID'] == '90182', 'Service_Area_SQ_Miles'] = 562
+full_df.loc[full_df['5_digit_NTD_ID'] == '90182', 'UZA_Area_SQ_Miles'] = 562
+
+# Charlotte
+full_df.loc[full_df['5_digit_NTD_ID'] == '40228', 'Service_Area_SQ_Miles'] = 688
+
+# San Juan Ferry
+full_df.loc[full_df['5_digit_NTD_ID'] == '40175', 'Service_Area_SQ_Miles'] = 867
+
+# Polk County, Fl
+full_df.loc[full_df['5_digit_NTD_ID'] == '40127', 'Service_Area_SQ_Miles'] = 1798
+full_df.loc[full_df['5_digit_NTD_ID'] == '40127', 'UZA_Area_SQ_Miles'] = 1798
+
+# UGa Augusta
+full_df.loc[full_df['5_digit_NTD_ID'] == '40180', 'Service_Area_SQ_Miles'] = 118
+full_df.loc[full_df['5_digit_NTD_ID'] == '40180', 'UZA_Area_SQ_Miles'] = 118
+
+# Augusta, GA
+full_df.loc[full_df['5_digit_NTD_ID'] == '40023', 'Service_Area_SQ_Miles'] = 302
+full_df.loc[full_df['5_digit_NTD_ID'] == '40023', 'UZA_Area_SQ_Miles'] = 302
+
+# Ventura Intercity Service commuter bus
+full_df.loc[full_df['5_digit_NTD_ID'] == '90164', 'Service_Area_SQ_Miles'] = 800
+full_df.loc[full_df['5_digit_NTD_ID'] == '90164', 'UZA_Area_SQ_Miles'] = 800
+
+# full_df.loc[full_df.Agency.str.contains('Puerto Rico Maritime Transport Authority')]['5_digit_NTD_ID']
+
+# full_df.loc[full_df['5_digit_NTD_ID'] == '40070']
+
 # full_df.shape
 
 # full_df.info()
@@ -98,4 +142,4 @@ for k in list(df_dict.keys())[1:]:
 # full_df.head()
 
 # Save clean data
-full_df.to_csv(OUTPUT_PATH + 'clean_data_test.csv')
+full_df.to_csv(OUTPUT_PATH + 'clean_data.csv')

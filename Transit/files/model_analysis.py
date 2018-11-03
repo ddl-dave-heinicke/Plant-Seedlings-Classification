@@ -1,5 +1,4 @@
 import pandas as pd
-import numpy as np
 import lightgbm as lgb
 from matplotlib import pyplot as plt
 from pdpbox import pdp
@@ -25,29 +24,44 @@ X = data.drop(['5_digit_NTD_ID', 'target'], axis=1)
 y = data['target']
 
 train_X, test_X, train_y, test_y = train_test_split(X, y,
-                                                    test_size=0.25,
+                                                    test_size=0.2,
                                                     random_state=3)
 
 feature_names = X.columns.tolist()
 
-# LightGBM model
+# Tuned LightGBM model (from model.py)
 
-lgb_clf = lgb.LGBMClassifier(n_estimators=650,
-                             boosting_type='gbdt',
-                             num_leaves=14,
-                             max_depth=5,
+lgb_clf = lgb.LGBMClassifier(n_estimators=650,  # 650
+                             boosting_type='gbdt',  # gbdt
+                             num_leaves=34,  # 34
+                             max_depth=20,  # 20
                              learning_rate=0.01,
-                             min_split_gain=0,
-                             min_child_samples=3,
-                             colsample_bytree=1,
+                             min_split_gain=0,  # 0
+                             min_child_samples=2,  # 2
+                             colsample_bytree=0.6,  # 0.6
                              objective='binary',
                              random_state=42,
                              eval_metric='roc_auc',
+                             is_unbalance=True,
                              n_jobs=-1)
+
+# lgb_clf = lgb.LGBMClassifier(n_estimators=780,  # 780
+#                              boosting_type='gbdt',
+#                              num_leaves=13,
+#                              max_depth=5,
+#                              learning_rate=0.01,
+#                              min_split_gain=0,
+#                              min_child_samples=2,
+#                              colsample_bytree=0.4,
+#                              objective='binary',
+#                              random_state=42,
+#                              eval_metric='roc_auc',
+#                              n_jobs=-1)
 
 model = lgb_clf.fit(train_X, train_y)
 preds = model.predict(test_X)
-roc_auc_score(test_y, preds)
+score = roc_auc_score(test_y, preds)
+print(score)
 
 # Permutation Importance
 
