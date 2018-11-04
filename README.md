@@ -28,4 +28,6 @@ A challenge to predict the likelikood of a grant application bein accepted.
 
 ### [Transit](https://github.com/dheinicke1/Sample-Work/tree/master/Transit)
 
-Project investigating US public transit data. In progress!
+Public transit ridership in the United States has generally been in decline over the last few years. Why?
+
+A proejct to analyze transit agency and ridership data to determine why some agencies are experiencing a decline while others aren't.
