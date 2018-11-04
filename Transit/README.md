@@ -150,25 +150,45 @@ Whew! Shuffling the data in significant features does hurt the model, indicating
 Next, we can use SHAP to visualize how different features impact the model prediction. Since the fit depends on how the train and test sets are shuffled (small data problems...), I re-ran the model on 100 different shuffles and extracted the most important features over the various shuffles. Here are the top 20:
 
 *Service_Area_Population*   - Population served by the agency
+
 *service_to_uza_area*   - Ratio of the agency service area (sq miles) to the area of the city served (some agencies serve part of a         city, some agencies serve a city and surrounding areas)
+
 *UZA_Area_SQ_Miles*   - Area of the agency's city
+
 *UZA_Population*   - Population of the agency's city
+
 *agencies_per_city*   - Number of ransit agencies operating in that city
+
 *Service_Area_SQ_Miles*   - Service are square miles
+
 *cost_per_person*   - Total fares divided by total rides
+
 *cost_per_mile*   - Total fares divided by total distance traveled in a year
+
 *trips_per_mile*   - Number of passenger trips per mile traveled
+
 *fares_per_mile*   - Total fares divided by total miles traveled
+
 *service_to_uza_pop*   - Same as 2, but with population
+
 *service_area_pop_density*   - Population density of area served
+
 *miles_per_trip*   - Inverse of trips per mile
+
 *UZA_pop_density*   - City's population density
+
 *Fares_FY*   - Total fares collected
+
 *net_per_trip*   - Net revenue per trip (Fare - Cost)
+
 *net_per_mile*   - Net revenue per mile
+
 *Passenger_Miles_FY*   -  Total miles per year
+
 *MA*   - Is the agency in Massachusetts?
+
 *fare_per_trip*   - Fares per passenger trip
+
 *Operating_Expenses_FY*   - Total cost to operate the agency per year
 
 And here is the SHAP summary plot:
