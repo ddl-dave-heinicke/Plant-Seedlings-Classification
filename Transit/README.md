@@ -43,7 +43,7 @@ The first unexpected feature from EDA was how many different transit agencies op
 First, while I usually think of the BART, Chicago's 'L'' or the NYC subway when thinking about mass transit, the majority of agencies serve communities with less than 1 million people. America's most famous transit agencies in this respect are really outliers.
 
 <p align="center">
-  <img width="576" height="396" src="">
+  <img width="576" height="396" src="https://github.com/dheinicke1/Sample-Work/blob/master/Transit/plots/dist_agencies.png">
 </p>
 
 Population density and total passenger trips do appear to be correlated, but not as closely as I expected.
@@ -149,27 +149,27 @@ Whew! Shuffling the data in significant features does hurt the model, indicating
 
 Next, we can use SHAP to visualize how different features impact the model prediction. Since the fit depends on how the train and test sets are shuffled (small data problems...), I re-ran the model on 100 different shuffles and extracted the most important features over the various shuffles. Here are the top 20:
 
-    Service_Area_Population - Population served by the agency
-    service_to_uza_area - Ratio of the agency service area (sq miles) to the area of the city served (some agencies serve part of a city, some agencies serve a city and surrounding areas)
-    UZA_Area_SQ_Miles - Area of the agency's city
-    UZA_Population - Population of the agency's city
-    agencies_per_city - Number of ransit agencies operating in that city
-    Service_Area_SQ_Miles - Service are square miles
-    cost_per_person - Total fares divided by total rides
-    cost_per_mile - Total fares divided by total distance traveled in a year
-    trips_per_mile - Number of passenger trips per mile traveled
-    fares_per_mile - Total fares divided by total miles traveled
-    service_to_uza_pop - Same as 2, but with population
-    service_area_pop_density - Population density of area served
-    miles_per_trip - Inverse of trips per mile
-    UZA_pop_density - City's population density
-    Fares_FY - Total fares collected
-    net_per_trip - Net revenue per trip (Fare - Cost)
-    net_per_mile - Net revenue per mile
-    Passenger_Miles_FY -
-    MA - Is the agency in Massachusetts?
-    fare_per_trip - Fares per passenger trip
-    Operating_Expenses_FY - Total cost to operate the agency per year
+Service_Area_Population - Population served by the agency
+service_to_uza_area - Ratio of the agency service area (sq miles) to the area of the city served (some agencies serve part of a city,     some agencies serve a city and surrounding areas)
+UZA_Area_SQ_Miles - Area of the agency's city
+UZA_Population - Population of the agency's city
+agencies_per_city - Number of ransit agencies operating in that city
+Service_Area_SQ_Miles - Service are square miles
+cost_per_person - Total fares divided by total rides
+cost_per_mile - Total fares divided by total distance traveled in a year
+trips_per_mile - Number of passenger trips per mile traveled
+fares_per_mile - Total fares divided by total miles traveled
+service_to_uza_pop - Same as 2, but with population
+service_area_pop_density - Population density of area served
+miles_per_trip - Inverse of trips per mile
+UZA_pop_density - City's population density
+Fares_FY - Total fares collected
+net_per_trip - Net revenue per trip (Fare - Cost)
+net_per_mile - Net revenue per mile
+Passenger_Miles_FY -
+MA - Is the agency in Massachusetts?
+fare_per_trip - Fares per passenger trip
+Operating_Expenses_FY - Total cost to operate the agency per year
 
 And here is the SHAP summary plot:
 
@@ -179,13 +179,13 @@ And here is the SHAP summary plot:
 
 Some are a little difficult to see from the summary plot, but a few recommendations are apparent:
 
-    2 - service_to_uza_area: If the service area is greater than the headquarter city area, the agency is more likely to maintain ridership. This suggests intercity systems and longer distance commuter systems are services agencies should pursue.
+2 - service_to_uza_area: If the service area is greater than the headquarter city area, the agency is more likely to maintain ridership. This suggests intercity systems and longer distance commuter systems are services agencies should pursue.
 
-    5 - agencies_per_city: Interestingly, having fewer agencies in one city actually negatively impacts the predictions. This could just reflect agencies in smaller communities not doing as well, or it just indicates that having multiple agencies competing in one jurisdiction actually helps things. Is there a network effect? Or does the causality go the other way - do cities already favorable to public transportation (like NYC) just have more agencies?
+5 - agencies_per_city: Interestingly, having fewer agencies in one city actually negatively impacts the predictions. This could just reflect agencies in smaller communities not doing as well, or it just indicates that having multiple agencies competing in one jurisdiction actually helps things. Is there a network effect? Or does the causality go the other way - do cities already favorable to public transportation (like NYC) just have more agencies?
 
-    8 & 9 - cost_per_mile and fare_per_mile: This one is also counter intuitive. Higher costs (and fares) per mile actually indicate better ridership? My hunch  
+8 & 9 - cost_per_mile and fare_per_mile: This one is also counter intuitive. Higher costs (and fares) per mile actually indicate better ridership? My hunch  
 
-    18 - MA - The state of Massachusetts might be up to something - having your agency there is a string predictor of stable ridership. This could just be coincidence (there are only ~10 agencies there), or it could reflect something about the state such a state policy that is helping transit agencies. Its probably not gas prices - the states with the highest gas prices (CT, CA, WA, OR) don't show up in the model fit!
+18 - MA - The state of Massachusetts might be up to something - having your agency there is a string predictor of stable ridership. This could just be coincidence (there are only ~10 agencies there), or it could reflect something about the state such a state policy that is helping transit agencies. Its probably not gas prices - the states with the highest gas prices (CT, CA, WA, OR) don't show up in the model fit!
 
 
 What's not on the top 20 list? Surprisingly, the model isn't using the types of services available (heavy rail, light rail, demand response etc.) to predict ridership as much as I would think. Apparently to this model the layout and cost of the network matter more than the actual vehicles used.
