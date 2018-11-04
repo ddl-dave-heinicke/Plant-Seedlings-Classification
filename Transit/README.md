@@ -49,7 +49,7 @@ First, while I usually think of the BART, Chicago's 'L'' or the NYC subway when 
 Population density and total passenger trips do appear to be correlated, but not as closely as I expected.
 
 <p align="center">
-  <img width="576" height="396" src="">
+  <img width="576" height="396" src="https://github.com/dheinicke1/Sample-Work/blob/master/Transit/plots/pop_desnity.png">
 </p>
 
 **Objective 2:** What are the general trends in ridership in the US? When did ridership start declining, and what contributed to that decline?
@@ -61,23 +61,23 @@ I tried a few different thresholds, but by assuming if more than ~5 years were m
 Total ridership increased until about 2014, then began declining. There is a fair amount of seasonal variation in ridership, but the trend clear:
 
 <p align="center">
-  <img width="720" height="720" src="">
+  <img width="720" height="720" src="https://github.com/dheinicke1/Sample-Work/blob/master/Transit/plots/quarterly_ridership.png">
 </p>
 
 Breaking the ridership down by the most common modes, its clear the decline in ridership is due to the single most common mode- regular busses (MB). Heavy rail (HR), commuter rail (CR) and light rail (LR) held steady or saw slight increases in recent years:
 
 <p align="center">
-  <img width="720" height="720" src="">
+  <img width="720" height="720" src="https://github.com/dheinicke1/Sample-Work/blob/master/Transit/plots/ridership_by_type.png">
 </p>
 
 Does the population and geographical size of an urban zone area (UZA) served by an agency contribute to the decline? Interestingly, agencies serving a large area (>800 square miles) saw ridership hold steady, while smaller areas experiences a decline. By grouping the agencies by population served, it becomes clear that most of the decline in ridership is due to declines in smaller communities (~ < 1 million people):
 
 <p align="center">
-  <img width="720" height="720" src="">
+  <img width="720" height="720" src="https://github.com/dheinicke1/Sample-Work/blob/master/Transit/plots/UZA_Area_SQ_Miles.png">
 </p>
 
 <p align="center">
-  <img width="720" height="720" src="">
+  <img width="720" height="720" src="https://github.com/dheinicke1/Sample-Work/blob/master/Transit/plots/Service_Area_Population.png">
 </p>
 
 **Objective 3:** What is the relationship between costs, agency revenue and ridership?
@@ -85,17 +85,17 @@ Does the population and geographical size of an urban zone area (UZA) served by 
 First, how many agencies loose money and how many make money? A quick look at net revenue per trip shows the agencies that make money tend to be smaller, privately owned charters and some university bus systems (although those may be subsidized). The largest loss makers are generally specialty services for the disabled and small city transit systems (such as New Haven, CT).
 
 <p align="center">
-  <img width="576" height="396" src="">
+  <img width="576" height="396" src="https://github.com/dheinicke1/Sample-Work/blob/master/Transit/plots/revenue_by_agnecy.png">
 </p>
 
 How about operating costs and fares? Here, I broke down the agencies into fare and cost-per-trip quintiles and plotted ridership from 2002-2018. In both cases, the highest cost and highest fare agencies only experiences slight declines, while most of the total ridership decline came from low-fare, lower cost-per-rider agencies.
 
 <p align="center">
-  <img width="720" height="720" src="">
+  <img width="720" height="720" src="https://github.com/dheinicke1/Sample-Work/blob/master/Transit/plots/cost_per_trip.png">
 </p>
 
 <p align="center">
-  <img width="720" height="720" src="">
+  <img width="720" height="720" src="https://github.com/dheinicke1/Sample-Work/blob/master/Transit/plots/fare_per_trip.png">
 </p>
 
 At first this may seem counter-intuitive, but it suggests that longer-distance commuter systems (such as commuter rail or intercity busses) are doing relatively well, while inexpensive local routes are struggling.
@@ -106,7 +106,7 @@ The file model.py includes the machine learning models I explored to see if one 
 
 The modeling steps are:
 
-**1) Create a Target** I made this problem a binary classification problem - an agency's ridership is either stable/increasing [1] or decreasing [0]. Total US ridership peaked and was roughly was steady from  2007-2013, and began declining from 2014-2017. I averaged ridership by agency over the two periods and compared them. If average 2014-2017 ridership was greater than 95% of the 2007-2013 average ridership, that agency is considered stable or increasing [1], if recent ridership is less than 95% of past ridership, that agency is considered decreasing [0].
+**1) Create a Target** I made this problem a binary classification problem - an agency's ridership is either stable/increasing '1' or decreasing '0'. Total US ridership peaked and was roughly was steady from  2007-2013, and began declining from 2014-2017. I averaged ridership by agency over the two periods and compared them. If average 2014-2017 ridership was greater than 95% of the 2007-2013 average ridership, that agency is considered stable or increasing '1', if recent ridership is less than 95% of past ridership, that agency is considered decreasing '0'.
 
 **2) Select a Performance Metric** The data set is a little imbalanced, with about 58% of agencies stable [1] and 42% declining [0], so accuracy could work as a performance metric, but I chose Area Under the ROC Curve (AUC-ROC) as a good general metric that would not be influenced by the slight imbalance in the data set.
 
@@ -120,18 +120,18 @@ I then created ~15 numeric features which are detailed in the code, but include 
 
 **6) Fit and Evaluate Models** I tried a few different models using the following general approach:
 
-    - Tune model parameters using scikit-learn's GridSearchCV. I also tried some 'manual' parameter tuning once I had the general combination of parameters from the grid search.
+   - Tune model parameters using scikit-learn's GridSearchCV. I also tried some 'manual' parameter tuning once I had the general combination of parameters from the grid search.
 
-    - The small size of the data set means the test-set performance varies quite a bit depending on how the train and test data is shuffled. To get a more consistent AUC-ROC score, I scored the best model by fitting it to and scoring it on 10 different train-test-split shuffles, and averaging the test scores.
+   - The small size of the data set means the test-set performance varies quite a bit depending on how the train and test data is shuffled. To get a more consistent AUC-ROC score, I scored the best model by fitting it to and scoring it on 10 different train-test-split shuffles, and averaging the test scores.
 
 The general best AUC-ROC scores were:
 
-    - Logistic Regression: 0.55
-    - Naive Bayes - 0.51
-    - K-Nearest Neighbors - 0.53
-    - Random Forest - 0.58
-    - LightGBM - 0.63
-    - XGBoost - 0.58
+  - Logistic Regression: 0.55
+  - Naive Bayes - 0.51
+  - K-Nearest Neighbors - 0.53
+  - Random Forest - 0.58
+  - LightGBM - 0.63
+  - XGBoost - 0.58
 
 While none of these fits are great, there may be enough information in the LightGBM model to extract some insights into what is going on!
 
@@ -142,7 +142,7 @@ This is the best part - what did the LightGBM model use to fit to the transit ag
 First, its worth checking whether the 'fit' is real. ELI5's permutation importance module is a great way to see if the 'fit' is real - we check if the model performance is negatively impacted by shuffling the values of various features in the test set:
 
 <p align="center">
-  <img width="270" height="384" src="">
+  <img width="270" height="384" src="https://github.com/dheinicke1/Sample-Work/blob/master/Transit/plots/perm_imp.png">
 </p>
 
 Whew! Shuffling the data in significant features does hurt the model, indicating the fit is real.
@@ -174,7 +174,7 @@ Operating_Expenses_FY - Total cost to operate the agency per year
 And here is the SHAP summary plot:
 
 <p align="center">
-  <img width="633" height="584" src="">
+  <img width="633" height="584" src="https://github.com/dheinicke1/Sample-Work/blob/master/Transit/plots/summary_plot.png">
 </p>
 
 Some are a little difficult to see from the summary plot, but a few recommendations are apparent:
