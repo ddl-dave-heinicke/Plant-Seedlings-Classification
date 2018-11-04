@@ -1,7 +1,5 @@
 ### Exploration of American Public Transit Association (APTA) and Federal Transit Administration (FTA) data.
 
-Project Under Construction!
-
 [APTA Data Here](https://www.apta.com/resources/statistics/Pages/ridershipreport.aspx)
 
 [FTA Data Here](https://www.transit.dot.gov/ntd/data-product/monthly-module-raw-data-release)
