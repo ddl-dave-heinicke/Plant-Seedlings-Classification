@@ -142,4 +142,6 @@ full_df.loc[full_df['5_digit_NTD_ID'] == '90164', 'UZA_Area_SQ_Miles'] = 800
 # full_df.head()
 
 # Save clean data
-full_df.to_csv(OUTPUT_PATH + 'clean_data.csv')
+# full_df.to_csv(OUTPUT_PATH + 'clean_data.csv')
+
+full_df.to_csv('C:\\Users\\Dave\\Google Drive\\Data Science Training\\Python Scripts\\Transit\\clean_data.csv')
