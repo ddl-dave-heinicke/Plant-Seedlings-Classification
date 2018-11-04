@@ -11,6 +11,7 @@ import seaborn as sns
 plt.style.use('seaborn')
 
 DATA_PATH = 'C:\\Users\\Dave\\Documents\\Python Scripts\\Transit\\'
+PLOT_PATH = 'C:\\Users\\Dave\\Documents\\GitHub\\Sample-Work\\Transit\\plots\\'
 
 # DATA_PATH = 'C:\\Users\\dheinicke\\Google Drive\\Data Science Training\\Python Scripts\\Transit\\'
 
@@ -36,7 +37,7 @@ def plot_total_ridership(df, freq='monthly'):
         print('Invalid Split')
         return None
 
-    freq_dict = {'monthly': [1],
+    freq_dict = {'monthly': 1,
                  'quarterly': 3,
                  'yearly': 12}
 
@@ -46,11 +47,12 @@ def plot_total_ridership(df, freq='monthly'):
     df['labels'] = labels[0: df.shape[0]]
     df.set_index('labels', drop=True, inplace=True)
 
-    fig, ax = plt.subplots(figsize=(14, 14))
+    fig, ax = plt.subplots(figsize=(10, 10))
     ax = df.iloc[0:-1].Total.plot()
     ax.set_title('%s Total Ridership in the United States' % freq.capitalize(),
                  fontsize=16)
     ax.set_ylabel('Total Trips per Year', fontsize=14)
+    # plt.savefig(PLOT_PATH + 'quarterly_ridership.png')
     plt.show()
 
     return None
@@ -128,15 +130,12 @@ EDA_1 = master[['5_digit_NTD_ID',
                 'Unlinked_Passenger_Trips_FY',
                 'Average_Trip_Length_FY']]
 
-print(EDA_1.shape)
-
 EDA_1.dropna(axis=0, how='any', inplace=True)
 
 print('There are %i Transit Agencies' % (len(set(EDA_1['5_digit_NTD_ID']))))
 
 print('The agencies operate in %i states & terriories and %i municipalities.'
       % (len(np.unique(master.HQ_State)), len(np.unique(master.HQ_City))))
-
 
 # Combine Transit Modes by Transit Agency
 
@@ -227,23 +226,26 @@ temp.sort_values(by='Passenger_Trips_PC', ascending=False).head(10)
 plt.hist(temp.Service_Area_Population, bins=50)
 plt.title('Servica Area Population Distribution')
 plt.xlabel('Service Area Population')
+# plt.savefig(PLOT_PATH + 'dist_agencies.png')
 plt.show()
 
 # Correlation bewteen population density and passenger trips per capita?
-plt.scatter(temp.Service_Area_Pop_Density, temp.Passenger_Trips_PC)
-plt.title('Population Density vs Passenger Trips')
-plt.xlabel('Service Area Population Density')
-plt.ylabel('Passenger Trips per Year per Capita')
-plt.xlim(0, 10000)
-plt.show()
+fig, ax = plt.subplots(nrows=1, ncols=2)
+ax[0].scatter(temp.Service_Area_Pop_Density, temp.Passenger_Trips_PC)
+ax[0].set_title('Population Density vs Passenger Trips')
+ax[0].set_xlabel('Service Area Population Density')
+ax[0].set_ylabel('Passenger Trips per Year per Capita')
+ax[0].set_xlim(0, 10000)
 
 # Correlation bewteen population density and passenger miles per capita?
-plt.scatter(temp.Service_Area_Pop_Density, temp.Passenger_Miles_PC)
-plt.title('Population Density vs Passenger Miles')
-plt.xlabel('Service Area Population Density')
-plt.ylabel('Passenger Miles per Year per Capita')
-plt.xlim(0, 10000)
-plt.ylim(0, 500)
+ax[1].scatter(temp.Service_Area_Pop_Density, temp.Passenger_Miles_PC)
+ax[1].set_title('Population Density vs Passenger Miles')
+ax[1].set_xlabel('Service Area Population Density')
+ax[1].set_ylabel('Passenger Miles per Year per Capita')
+ax[1].set_xlim(0, 10000)
+ax[1].set_ylim(0, 500)
+plt.tight_layout()
+plt.savefig(PLOT_PATH + 'pop_desnity.png')
 plt.show()
 
 # Correlation bewteen population density and trip length?
@@ -292,7 +294,7 @@ df_UPT = full_data[UPT_cols]
 
 df_UPT_by_type = df_UPT[UPT_cols[2:]].groupby('Modes').sum().T
 df_UPT_by_type = df_UPT_by_type.fillna(0)
-plot_total_ridership(df_UPT_by_type, freq='quarterly')
+plot_total_ridership(df_UPT_by_type, freq='monthly')
 
 # Try interpolating missing values. Don't interpolate if more than 5 years
 # are missing to avoid over-estimating. Aligns with APTA estimates
@@ -302,17 +304,19 @@ df_UPT_int = df_UPT[UPT_cols[3:]].interpolate(axis=1,
                                               limit_direction='both')
 df_UPT_int['Modes'] = df_UPT['Modes']
 df_UPT_by_type = df_UPT_int.groupby('Modes').sum()
-plot_total_ridership(df_UPT_by_type.T, freq='Yearly')
+plot_total_ridership(df_UPT_by_type.T, freq='quarterly')
 
 # 2.2 Break down total annual ridership by mode
 df_UPT_by_type['Total'] = df_UPT_by_type.sum(axis=1)
 df_UPT_by_type = df_UPT_by_type.sort_values(by='Total', ascending=False)
 
 # Plot monthly ridership of 5 most common modes, without total column
-fig = df_UPT_by_type.T.iloc[:-1, 0:5].plot(figsize=(12, 12))
+fig = df_UPT_by_type.T.iloc[:-1, 0:5].plot(figsize=(10, 10))
 fig.set_title('Total Ridership in the United States by Type',
               fontsize=16)
 fig.set_ylabel('Total Trips per Year', fontsize=14)
+plt.tight_layout()
+# plt.savefig(PLOT_PATH + 'ridership_by_type.png')
 plt.show()
 
 # 2.3 Investigate relationship between changes in total annual ridership and
@@ -421,9 +425,11 @@ for i, col in enumerate(agency_cols):
 
     df = df_areas[[*sum_cols, col + '_bin']].\
                    groupby(col + '_bin').agg('sum').rename(index=legend)
-    df.T.plot(figsize=(12, 12)).legend(loc='best')
+    df.T.plot(figsize=(10, 10)).legend(loc='best')
     plt.title(col, fontsize=14)
     plt.ylabel('Total Annual Rides', fontsize=12)
+    plt.tight_layout()
+    # plt.savefig(PLOT_PATH + col +'.png')
     plt.show()
 
 # 2.4 Investigate relationship between changes in total annual ridership and
@@ -452,12 +458,17 @@ df_UPT_int[UPT_cols] = df_UPT[UPT_cols]
 
 df_UPT_int['Margin'] = df_UPT_int['Average_Fares_per_Trip_FY'] -\
                                   df_UPT_int['Average_Cost_per_Trip_FY']
+
 # Plot the distribution of margins
+
+# Create revenue by trip data frame
 df = pd.DataFrame()
 df['pos'] = df_UPT_int['Margin'].sort_values(ascending=False).\
                                  apply(lambda x: 0 if x < 0 else x)
 df['neg'] = df_UPT_int['Margin'].sort_values(ascending=False).\
                                  apply(lambda x: 0 if x > 0 else x)
+
+# Plot revenue by trip
 plt.bar(np.arange(0, df_UPT_int.shape[0], 1), df['pos'], color='g', width=1)
 plt.bar(np.arange(0, df_UPT_int.shape[0], 1), df['neg'], color='r', width=1)
 plt.ylim(-100, 20)
@@ -466,6 +477,7 @@ plt.tick_params(bottom=False, labelbottom=False)
 plt.title('Distribution of net Revenue per Trip')
 plt.show()
 
+# Create revenue by agency
 df_UPT_by_agency = df_UPT_int.groupby('5_digit_NTD_ID').agg('sum')
 df_UPT_by_agency.drop('Average_Trip_Length_FY', axis=1, inplace=True)
 df_UPT_by_agency['Average_Cost_per_Trip_FY'] =\
@@ -477,12 +489,25 @@ df_UPT_by_agency['Average_Fares_per_Trip_FY'] =\
 df_UPT_by_agency['Margin'] = df_UPT_by_agency['Average_Fares_per_Trip_FY'] -\
                                   df_UPT_by_agency['Average_Cost_per_Trip_FY']
 df_UPT_by_agency.head()
-
 df = pd.DataFrame()
 df['pos'] = df_UPT_by_agency['Margin'].sort_values(ascending=False).\
                                  apply(lambda x: 0 if x < 0 else x)
 df['neg'] = df_UPT_by_agency['Margin'].sort_values(ascending=False).\
                                  apply(lambda x: 0 if x > 0 else x)
+
+# Which agencies do best and worst?
+temp = df_UPT_by_agency[['Margin']].merge(master,
+                                          how='left',
+                                          left_index=True,
+                                          right_on='5_digit_NTD_ID')
+
+temp[['Agency', 'Margin']].sort_values(by='Margin',
+                                       ascending=False).head(50)
+
+temp[['Agency', 'Margin']].dropna().sort_values(by='Margin',
+                                                ascending=False).tail(50)
+
+# Plot revenue by agency
 plt.bar(np.arange(0, df_UPT_by_agency.shape[0], 1), df['pos'],
         color='g', width=1)
 plt.bar(np.arange(0, df_UPT_by_agency.shape[0], 1), df['neg'],
@@ -491,4 +516,93 @@ plt.ylim(-100, 20)
 plt.ylabel('Net Revenue per Trip ($)')
 plt.tick_params(bottom=False, labelbottom=False)
 plt.title('Distribution of net Revenue per Trip by Agency')
+plt.savefig(PLOT_PATH + 'revenue_by_agnecy.png')
 plt.show()
+
+# Do fares and operating costs affect chnage in ridership?
+
+# Aggregate by transit agency ID, Create population bin feature
+
+# Select columns, interpolate missing values
+UPT_cols = ['5_digit_NTD_ID',
+            'Average_Cost_per_Trip_FY',
+            'Average_Fares_per_Trip_FY']
+
+for col in full_data.columns:
+    if col.endswith('UPT'):
+        UPT_cols.append(col)
+
+df_UPT = full_data[UPT_cols]
+
+df_UPT = df_UPT.dropna(thresh=60)
+df_UPT.columns
+df_UPT_int = df_UPT[UPT_cols[3:]].interpolate(axis=1,
+                                              limit=None,
+                                              limit_direction='both')
+df_UPT_int[UPT_cols] = df_UPT[UPT_cols]
+
+# Agency properties to be aggregated by mode, ridership columns by sum
+
+grouped = df_UPT_int.groupby('5_digit_NTD_ID')
+
+sum_cols = []
+
+for col in full_data.columns:
+    if col.endswith('UPT'):
+        sum_cols.append(col)
+
+agency_cols = ['Average_Cost_per_Trip_FY',
+               'Average_Fares_per_Trip_FY']
+
+funcs = defaultdict()
+
+for col in df_UPT_int.columns:
+    if col in sum_cols:
+        funcs[col] = np.sum
+    elif col in agency_cols:
+        funcs[col] = np.mean
+
+df_costs = grouped.agg(funcs)
+df_costs.head()
+
+n_ad_bins = 4
+bins = {}
+
+for col in agency_cols:
+    df_costs[col + '_bin'], bins[col] = pd.qcut(df_areas[col],
+                                                q=n_ad_bins,
+                                                labels=np.arange(0, n_ad_bins),
+                                                retbins=True)
+
+df_costs_agg = df_costs.groupby('Average_Cost_per_Trip_FY_bin').sum()
+
+df_costs_agg.drop(['Average_Cost_per_Trip_FY',
+                   'Average_Fares_per_Trip_FY'],
+                  inplace=True, axis=1)
+
+df_costs_agg = df_costs_agg.T
+
+df_fares_agg = df_costs.groupby('Average_Fares_per_Trip_FY_bin').sum()
+df_fares_agg.drop(['Average_Cost_per_Trip_FY',
+                   'Average_Fares_per_Trip_FY'],
+                  inplace=True, axis=1)
+
+df_fares_agg = df_fares_agg.T
+
+df_costs_agg.plot(figsize=(10,10))
+plt.ylabel('Total Ridership per Month')
+plt.title('Cost per Trip', fontsize=14)
+plt.legend(['\$0-\$4.12', '\$4.12-\$13.45', '\$13.45-\$20.37', '\$20 +'])
+plt.savefig(PLOT_PATH + 'cost_per_trip.png')
+plt.show()
+
+df_fares_agg.plot(figsize=(10,10))
+plt.ylabel('Total Ridership per Month')
+plt.title('Fare per Trip', fontsize=14)
+plt.legend(['\$0-\$0.53', '\$.53-\$1.38', '\$1.38-\$2.32', '\$2.32-\$120'])
+plt.savefig(PLOT_PATH + 'fare_per_trip.png')
+plt.show()
+
+bins
+
+help(ax[0].set_xticks)

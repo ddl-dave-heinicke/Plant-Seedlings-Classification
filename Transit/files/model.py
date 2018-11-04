@@ -488,7 +488,7 @@ lgb_clf = lgb.LGBMClassifier(n_estimators=780,
                              )
 
 param_grid = {'boosting_type': ['gbdt'],  # gbdt
-              'num_leaves': [12, 13, 15, 28, 30, 34, 35],  # 13
+              'num_leaves': [34],  # 13
               'max_depth': [5],  # 5
               'learning_rate': [0.01],
               'min_split_gain': [0],
@@ -505,6 +505,8 @@ lgb_cv = GridSearchCV(lgb_clf,
                       verbose=1)
 
 lgb_cv.fit(X, y)
+
+shuffle_verify(X, y, lgb_cv.best_estimator_)
 
 # 'Manual' Tuning and final LGB model
 params = [0]
